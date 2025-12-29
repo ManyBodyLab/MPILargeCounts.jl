@@ -32,7 +32,9 @@ Random.seed!(12345)
     # multi-part send/recv (explicit parts)
     @testset "multipart send/recv" begin
         # create a byte vector and break into parts manually
-        data = rand(UInt8, 50000, 50000)
+        # TODO: Too large for GitHub runners
+        # data = rand(UInt8, 50000, 50000)
+        data = rand(100,300)
         bufs = split_buffer(MPI.serialize(data))
         tag = 2001
         if rank != 0
