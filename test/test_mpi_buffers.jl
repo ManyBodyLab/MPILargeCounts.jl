@@ -19,6 +19,26 @@ Random.seed!(12345)
         if rank != 0
             buf = split_buffer(MPI.serialize(A))
             MPILarge._send_buffers(buf, 0, tag, comm)
+            MPILarge._send_buffers(buf, 0, tag, comm)
+            MPILarge._send_buffers(buf, 0, tag, comm)
+        else
+            for src in 1:(nprocs - 1)
+                recv = MPILarge._recv_buffers(src, tag, comm)
+                A_recv = MPI.deserialize(recv)
+
+                req = MPILarge._recv_buffers!(recv, src, tag, comm)
+                MPI.Waitall(req)
+                A_recv2 = MPI.deserialize(recv)
+
+                @test A ≈ A_recv
+                @test A ≈ A_recv2
+            end
+        end
+        MPI.Barrier(comm)
+
+        if rank != 0
+            buf = split_buffer(MPI.serialize(A))
+            MPILarge._send_buffers(buf, 0, tag, comm)
         else
             for src in 1:(nprocs - 1)
                 recv = MPILarge._recv_buffers(src, tag, comm)
@@ -26,7 +46,6 @@ Random.seed!(12345)
                 @test A ≈ A_recv
             end
         end
-        MPI.Barrier(comm)
     end
 
     # multi-part send/recv (explicit parts)
@@ -46,9 +65,7 @@ Random.seed!(12345)
                 @test data ≈ out
             end
         end
-        out = data = nothing
         MPI.Barrier(comm)
-        GC.gc()
     end
 
     # non-blocking send/receive using large_isend/large_ireceive

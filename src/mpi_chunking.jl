@@ -13,10 +13,11 @@ function split_ranges(len::Integer)
     end
     return ranges
 end
+
 """
     split_buffer(vec)
 
-Split an `AbstractVector` into A `Vector{MPI.Buffer}` views without copying.
+Split an `AbstractVector` into a `Vector{MPI.Buffer}` views without copying.
 """
 function split_buffer(vec::AbstractVector)::Vector{MPI.Buffer}
     r = split_ranges(length(vec))
@@ -69,8 +70,6 @@ function _irecv_buffers(source::Integer, tag::Integer, comm::Comm)
     return out, _irecv_buffers!(out, ranges, source, tag, comm)
 end
 function _irecv_buffers!(buf::AbstractVector{UInt8}, source::Integer, tag::Integer, comm::Comm)
-    # total = MPI.Recv(Int, comm; source=source, tag=tag)
-    # total = MPI.recv(comm; source=source, tag=tag)
     total = Ref{Int}(0)
     req = MPI.Irecv!(total, comm; source = source, tag = tag)
     MPI.Wait(req)

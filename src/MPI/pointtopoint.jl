@@ -32,20 +32,20 @@ function send(obj, dest::Integer, tag::Integer, comm::Comm)
 end
 
 """
-    Isend(data, comm::Comm[, req::AbstractRequest = Request()]; dest::Integer, tag::Integer=0)
+    Isend(data, comm::Comm; dest::Integer, tag::Integer=0)
 
 Starts a nonblocking send of `data` to MPI rank `dest` of communicator `comm` using with
 the message tag `tag`.
 """
-Isend(data, comm::Comm, req::MPI.AbstractRequest = Request(); dest::Integer, tag::Integer = 0) =
-    Isend(data, dest, tag, comm, req)
+Isend(data, comm::Comm; dest::Integer, tag::Integer = 0) =
+    Isend(data, dest, tag, comm)
 
 function Isend(buf::AbstractVector{<:Buffer}, dest::Integer, tag::Integer, comm::Comm)
     return _isend_buffers(buf, dest, tag, comm)
 end
 
 """
-    isend(obj, comm::Comm[, req::AbstractRequest = Request()]; dest::Integer, tag::Integer=0)
+    isend(obj, comm::Comm; dest::Integer, tag::Integer=0)
 
 Starts a nonblocking send of using a serialized version of `obj` to MPI rank
 `dest` of communicator `comm` using with the message tag `tag`.
@@ -62,8 +62,6 @@ end
 """
     data = Recv!(recvbuf, comm::Comm;
             source::Integer=MPI.ANY_SOURCE, tag::Integer=MPI.ANY_TAG)
-    data, status = Recv!(recvbuf, comm::Comm, MPI.Status;
-            source::Integer=MPI.ANY_SOURCE, tag::Integer=MPI.ANY_TAG)
 
 Completes a blocking receive into the buffer `recvbuf` from MPI rank `source` of communicator
 `comm` using with the message tag `tag`.
@@ -79,13 +77,9 @@ end
 """
     obj = recv(comm::Comm;
             source::Integer=MPI.ANY_SOURCE, tag::Integer=MPI.ANY_TAG)
-    obj, status = recv(comm::Comm, MPI.Status;
-            source::Integer=MPI.ANY_SOURCE, tag::Integer=MPI.ANY_TAG)
 
 Completes a blocking receive of a serialized object from MPI rank `source` of communicator
 `comm` using with the message tag `tag`.
-
-Returns the deserialized object and optionally the [`Status`](@ref) of the receive.
 """
 recv(comm::Comm, status = nothing; source::Integer = MPI.ANY_SOURCE[], tag::Integer = MPI.ANY_TAG[]) =
     recv(source, tag, comm, status)
