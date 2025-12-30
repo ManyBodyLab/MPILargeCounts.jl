@@ -85,12 +85,27 @@ Random.seed!(12345)
         if rank != 0
             reqs = MPILargeCounts.isend(B, comm; dest = 0, tag = tag)
             MPI.Waitall(reqs)
+
+            data = split_buffer(MPI.serialize(B))
+            reqs = MPILargeCounts.Isend(data, comm; dest = 0, tag = tag)
+            MPI.Waitall(reqs)
+
+            MPILargeCounts.Send(data, comm; dest = 0, tag = tag)
         else
             for src in 1:(nprocs - 1)
                 bytes, req = MPILargeCounts.irecv(comm; source = src, tag = tag)
                 MPI.Waitall(req)
                 Brecv = MPI.deserialize(bytes)
                 @test B ≈ Brecv
+
+                req = MPILargeCounts.Irecv!(bytes, comm; source = src, tag = tag)
+                MPI.Waitall(req)
+                Brecv2 = MPI.deserialize(bytes)
+                @test B ≈ Brecv2
+
+                bytes = MPILargeCounts.Recv!(bytes, comm; source = src, tag = tag)
+                Brecv3 = MPI.deserialize(bytes)
+                @test B ≈ Brecv3
             end
         end
         MPI.Barrier(comm)

@@ -41,8 +41,13 @@ nprocs = MPI.Comm_size(comm)
         end
         sumref = MPILargeCounts.allreduce(myval, Base.:+, comm; root = 0)
         sumref_2 = MPILargeCounts.reduce!(myval, Base.:+, comm; root = 0)
+        myval = rank + 1
+        sumref_3 = MPILargeCounts.allreduce!(myval, Base.:+, comm; root = 0)
+
         expected = sum(1:nprocs)
-        @test sumref == expected
+        @test sumref == expected 
+        @test sumref_3 == expected
+
         if rank == 0
             @test sumref_2 == expected
         else
