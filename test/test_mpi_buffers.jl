@@ -26,8 +26,7 @@ Random.seed!(12345)
                 recv = MPILargeCounts._recv_buffers(src, tag, comm)
                 A_recv = MPI.deserialize(recv)
 
-                req = MPILargeCounts._recv_buffers!(recv, src, tag, comm)
-                MPI.Waitall(req)
+                MPILargeCounts._recv_buffers!(recv, src, tag, comm)
                 A_recv2 = MPI.deserialize(recv)
 
                 @test A ≈ A_recv
