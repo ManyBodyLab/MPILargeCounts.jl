@@ -12,15 +12,17 @@ function bcast(obj, root::Integer, comm::Comm)
 
     if mpi_is_root(root, comm)
         buf = split_buffer(MPI.serialize(obj))
+        N = length(buf) + 1
+        reqs = Vector{MPI.Request}(undef, (nprocs - 1) * N)
         for dest in 0:(nprocs - 1)
             dest == root && continue
-            req = MPILargeCounts.Isend(buf, dest, dest, comm)
-            MPI.free.(req) # Not needed anymore, as buf is not GC'ed before leaving the function
+            pos = dest < root ? (dest * N + 1) : (dest - 1) * N + 1
+            reqs[pos:pos+N-1] .= MPILargeCounts.Isend(buf, comm; dest = dest, tag = dest)
         end
+        MPI.Waitall(reqs)
     else
         obj = MPILargeCounts.recv(comm; source = root, tag = mpi_rank(comm))
     end
-    MPI.Barrier(comm)
     return obj
 end
 
