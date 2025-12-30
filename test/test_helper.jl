@@ -1,7 +1,7 @@
-using MPILarge
+using MPILargeCounts
 using Test
 using MPI
-using MPILarge: mpi_size, mpi_rank, mpi_is_root
+using MPILargeCounts: mpi_size, mpi_rank, mpi_is_root
 
 MPI.Init()
 comm = MPI.COMM_WORLD

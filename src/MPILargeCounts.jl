@@ -1,7 +1,7 @@
 """
 Chunked communication based on MPI.jl with arbitrary-size data.
 """
-module MPILarge
+module MPILargeCounts
 
 # Convenience functions for MPI.jl
 export mpi_execute_on_root, mpi_execute_on_root_and_bcast

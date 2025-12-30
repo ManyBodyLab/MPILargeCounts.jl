@@ -1,7 +1,7 @@
-using MPILarge
+using MPILargeCounts
 using Test
 using MPI
-using MPILarge: mpi_size, mpi_rank, mpi_is_root
+using MPILargeCounts: mpi_size, mpi_rank, mpi_is_root
 
 MPI.Init()
 comm = MPI.COMM_WORLD
@@ -15,14 +15,14 @@ nprocs = MPI.Comm_size(comm)
         else
             obj = nothing
         end
-        res = MPILarge.bcast(obj, comm; root = 0)
+        res = MPILargeCounts.bcast(obj, comm; root = 0)
         @test res == [42, 43]
         MPI.Barrier(comm)
 
         # TODO: Too large for GitHub runners
         #A = ones(UInt8, Int(typemax(Cint)) + 10)
         A = ones(UInt8, 10000)
-        B = MPILarge.bcast(A, comm; root = 0)
+        B = MPILargeCounts.bcast(A, comm; root = 0)
         @test B == A
         A = B = nothing
         GC.gc()
@@ -30,8 +30,8 @@ nprocs = MPI.Comm_size(comm)
 
     @testset "reduce & allreduce" begin
         myval = rank + 1
-        sumref = MPILarge.allreduce(myval, Base.:*, comm; root = 0)
-        sumref_2 = MPILarge.reduce(myval, Base.:*, comm; root = 0)
+        sumref = MPILargeCounts.allreduce(myval, Base.:*, comm; root = 0)
+        sumref_2 = MPILargeCounts.reduce(myval, Base.:*, comm; root = 0)
         expected = prod(1:nprocs)
         @test sumref == expected
         if rank == 0
@@ -39,8 +39,8 @@ nprocs = MPI.Comm_size(comm)
         else
             @test isnothing(sumref_2)
         end
-        sumref = MPILarge.allreduce(myval, Base.:+, comm; root = 0)
-        sumref_2 = MPILarge.reduce!(myval, Base.:+, comm; root = 0)
+        sumref = MPILargeCounts.allreduce(myval, Base.:+, comm; root = 0)
+        sumref_2 = MPILargeCounts.reduce!(myval, Base.:+, comm; root = 0)
         expected = sum(1:nprocs)
         @test sumref == expected
         if rank == 0

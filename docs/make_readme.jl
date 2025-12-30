@@ -1,9 +1,9 @@
 using Literate: Literate
-using MPILarge
+using MPILargeCounts
 
 Literate.markdown(
-    joinpath(pkgdir(MPILarge), "docs", "files", "README.jl"),
-    joinpath(pkgdir(MPILarge));
+    joinpath(pkgdir(MPILargeCounts), "docs", "files", "README.jl"),
+    joinpath(pkgdir(MPILargeCounts));
     flavor = Literate.CommonMarkFlavor(),
     name = "README",
 )

@@ -1,4 +1,4 @@
-using MPILarge
+using MPILargeCounts
 using Aqua: Aqua
 using Test
 using TestExtras
@@ -12,7 +12,7 @@ nprocs = MPI.Comm_size(comm)
 
 @testset "Code quality (Aqua.jl)" begin
     if nprocs == 1
-        Aqua.test_all(MPILarge)
+        Aqua.test_all(MPILargeCounts)
     end
     MPI.Finalize()
 end

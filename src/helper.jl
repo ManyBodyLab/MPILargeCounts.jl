@@ -31,5 +31,5 @@ Broadcasts the result of `F` on all ranks.
 """
 function mpi_execute_on_root_and_bcast(F::A, args...; comm::MPI.Comm = MPI.COMM_WORLD, root = Cint(0), kwargs...) where {A}
     x = mpi_is_root(root, comm) ? F(args...; kwargs...) : nothing
-    return MPILarge.bcast(x, comm; root = root)
+    return MPILargeCounts.bcast(x, comm; root = root)
 end

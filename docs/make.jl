@@ -1,8 +1,8 @@
-using MPILarge
+using MPILargeCounts
 using Documenter: Documenter, DocMeta, deploydocs, makedocs
 
 DocMeta.setdocmeta!(
-    MPILarge, :DocTestSetup, :(using MPILarge); recursive = true
+    MPILargeCounts, :DocTestSetup, :(using MPILargeCounts); recursive = true
 )
 
 # Copy the license file into docs/src
@@ -12,11 +12,11 @@ cp(joinpath(@__DIR__, "..", "LICENSE"), joinpath(@__DIR__, "src", "LICENSE"); fo
 include("make_index.jl")
 
 makedocs(;
-    modules = [MPILarge],
+    modules = [MPILargeCounts],
     authors = "Andreas Feuerpfeil <development@manybodylab.com>",
-    sitename = "MPILarge.jl",
+    sitename = "MPILargeCounts.jl",
     format = Documenter.HTML(;
-        canonical = "https://manybodylab.github.io/MPILarge.jl",
+        canonical = "https://manybodylab.github.io/MPILargeCounts.jl",
         edit_link = "main",
         assets = [#"assets/logo.png",
             "assets/extras.css",
@@ -26,5 +26,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo = "github.com/ManyBodyLab/MPILarge.jl", devbranch = "main", push_preview = true
+    repo = "github.com/ManyBodyLab/MPILargeCounts.jl", devbranch = "main", push_preview = true
 )

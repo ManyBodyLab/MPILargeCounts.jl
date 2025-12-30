@@ -1,7 +1,7 @@
 using Test
 using MPI
-using MPILarge
-using MPILarge: split_buffer, _send_buffers, _recv_buffers
+using MPILargeCounts
+using MPILargeCounts: split_buffer, _send_buffers, _recv_buffers
 
 MPI.Init()
 comm = MPI.COMM_WORLD
@@ -18,15 +18,15 @@ Random.seed!(12345)
         tag = 1001
         if rank != 0
             buf = split_buffer(MPI.serialize(A))
-            MPILarge._send_buffers(buf, 0, tag, comm)
-            MPILarge._send_buffers(buf, 0, tag, comm)
-            MPILarge._send_buffers(buf, 0, tag, comm)
+            MPILargeCounts._send_buffers(buf, 0, tag, comm)
+            MPILargeCounts._send_buffers(buf, 0, tag, comm)
+            MPILargeCounts._send_buffers(buf, 0, tag, comm)
         else
             for src in 1:(nprocs - 1)
-                recv = MPILarge._recv_buffers(src, tag, comm)
+                recv = MPILargeCounts._recv_buffers(src, tag, comm)
                 A_recv = MPI.deserialize(recv)
 
-                req = MPILarge._recv_buffers!(recv, src, tag, comm)
+                req = MPILargeCounts._recv_buffers!(recv, src, tag, comm)
                 MPI.Waitall(req)
                 A_recv2 = MPI.deserialize(recv)
 
@@ -38,10 +38,10 @@ Random.seed!(12345)
 
         if rank != 0
             buf = split_buffer(MPI.serialize(A))
-            MPILarge._send_buffers(buf, 0, tag, comm)
+            MPILargeCounts._send_buffers(buf, 0, tag, comm)
         else
             for src in 1:(nprocs - 1)
-                recv = MPILarge._recv_buffers(src, tag, comm)
+                recv = MPILargeCounts._recv_buffers(src, tag, comm)
                 A_recv = MPI.deserialize(recv)
                 @test A ≈ A_recv
             end
@@ -57,10 +57,10 @@ Random.seed!(12345)
         bufs = split_buffer(MPI.serialize(data))
         tag = 2001
         if rank != 0
-            MPILarge._send_buffers(bufs, 0, tag, comm)
+            MPILargeCounts._send_buffers(bufs, 0, tag, comm)
         else
             for src in 1:(nprocs - 1)
-                recv = MPILarge._recv_buffers(src, tag, comm)
+                recv = MPILargeCounts._recv_buffers(src, tag, comm)
                 out = MPI.deserialize(recv)
                 @test data ≈ out
             end
@@ -73,12 +73,12 @@ Random.seed!(12345)
         B = [1, 3, 2, 3, 1.0, 321.321, 3.12313]
         tag = 3001
         if rank != 0
-            reqs = MPILarge.isend(B, comm; dest = 0, tag = tag)
+            reqs = MPILargeCounts.isend(B, comm; dest = 0, tag = tag)
             # do other work then wait
             MPI.Waitall(reqs)
         else
             for src in 1:(nprocs - 1)
-                bytes, req = MPILarge.irecv(comm; source = src, tag = tag)
+                bytes, req = MPILargeCounts.irecv(comm; source = src, tag = tag)
                 # blocking convenience wait
                 MPI.Waitall(req)
                 Brecv = MPI.deserialize(bytes)
@@ -96,7 +96,7 @@ Random.seed!(12345)
         else
             obj = nothing
         end
-        res = MPILarge.bcast(obj, comm; root = 0)
+        res = MPILargeCounts.bcast(obj, comm; root = 0)
         # All ranks should now have same data
         if rank == 0
             @test res == obj
@@ -109,7 +109,7 @@ Random.seed!(12345)
     # allreduce for integers
     @testset "allreduce" begin
         myval = rank + 1
-        sumref = MPILarge.allreduce(myval, (a, b) -> a + b, comm; root = 0)
+        sumref = MPILargeCounts.allreduce(myval, (a, b) -> a + b, comm; root = 0)
         # broadcasted result should be sum(1:nprocs)
         expected = sum(1:nprocs)
         @test sumref == expected

@@ -1,5 +1,5 @@
 using BenchmarkTools
-using MPILarge
+using MPILargeCounts
 
 SUITE = BenchmarkGroup()
 SUITE["rand"] = @benchmarkable rand(10)

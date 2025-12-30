@@ -14,11 +14,11 @@ function bcast(obj, root::Integer, comm::Comm)
         buf = split_buffer(MPI.serialize(obj))
         for dest in 0:(nprocs - 1)
             dest == root && continue
-            req = MPILarge.Isend(buf, dest, dest, comm)
+            req = MPILargeCounts.Isend(buf, dest, dest, comm)
             MPI.free.(req) # Not needed anymore, as buf is not GC'ed before leaving the function
         end
     else
-        obj = MPILarge.recv(comm; source = root, tag = mpi_rank(comm))
+        obj = MPILargeCounts.recv(comm; source = root, tag = mpi_rank(comm))
     end
     MPI.Barrier(comm)
     return obj
@@ -76,11 +76,11 @@ function reduce!(obj, op, root::Integer, comm::Comm)
         out = obj
         for r in 0:(comm_size - 1)
             r == root && continue
-            obj_recv = MPILarge.recv(comm; source = r, tag = r)
+            obj_recv = MPILargeCounts.recv(comm; source = r, tag = r)
             out = op(out, obj_recv)
         end
     else
-        MPILarge.send(obj, comm; dest = root, tag = rank)
+        MPILargeCounts.send(obj, comm; dest = root, tag = rank)
         out = nothing
     end
     return out
@@ -96,11 +96,11 @@ function reduce!(obj, ::typeof(+), root::Integer, comm::Comm)
         out = obj
         for r in 0:(comm_size - 1)
             r == root && continue
-            obj_recv = MPILarge.recv(comm; source = r, tag = r)
+            obj_recv = MPILargeCounts.recv(comm; source = r, tag = r)
             out += obj_recv # optimized in-place addition
         end
     else
-        MPILarge.send(obj, comm; dest = root, tag = rank)
+        MPILargeCounts.send(obj, comm; dest = root, tag = rank)
         out = nothing
     end
 
